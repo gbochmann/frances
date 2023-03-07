@@ -1,14 +1,14 @@
 //
-//  francesApp.swift
-//  frances
+//  macro_iosApp.swift
+//  macro-ios
 //
-//  Created by Gerome Bochmann on 3/7/23.
+//  Created by Gerome Bochmann on 3/6/23.
 //
 
 import SwiftUI
 
 @main
-struct francesApp: App {
+struct macro_iosApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
