@@ -20,11 +20,6 @@ enum ReadError: Error {
 
 
 func read(_ tokens: [String]) throws -> Expression {
-    
-    
-    print("This works!")
-    
-    
     guard tokens.first == "(" else {
         throw ReadError.invalidExpression("Expected expression to start with paren.")
     }
@@ -38,7 +33,7 @@ func read(_ tokens: [String]) throws -> Expression {
     }
     
     var operands = remainingTokens.dropFirst()
-    var operand = operands.first!
+    var operand = operands.removeFirst()
     var resultOperands: [Expression.Operand] = []
     
     while operands.count > 0 {
@@ -62,8 +57,9 @@ func read(_ tokens: [String]) throws -> Expression {
         }
     }
     
-    print(operatr)
-    print(operands)
+    guard operand == ")" else {
+        throw ReadError.invalidExpression("Expression was not closed with \")\"")
+    }
     
     return Expression(op: operatr, operands: Array(resultOperands))
 }

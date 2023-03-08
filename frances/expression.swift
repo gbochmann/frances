@@ -42,11 +42,24 @@ struct Expression {
         }
     }
     
-    var op: Operator
+    var op: Operator?
     var operands: [Operand]
     
+    init(op: Operator?, operands: [Operand]) {
+        if let operatr = op {
+            self.op = operatr
+        }
+        self.operands = operands
+    }
+    
     func inspect() -> String {
-        return "operator" + self.op.rawValue + "|"
+        var operatorNode = ""
+        
+        if let operatr = self.op {
+            operatorNode = "operator" + operatr.rawValue
+        }
+        
+        return operatorNode + "|"
         + self.operands
             .map({ (o: Operand) in o.inspect() })
             .joined(separator: "|")

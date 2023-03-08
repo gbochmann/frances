@@ -43,8 +43,10 @@ struct ContentView: View {
             output = try read(tokenize(input)).inspect()
         } catch ReadError.invalidExpression(let message) {
             print("Error occurred: \(message)")
+            output = message
         } catch {
             print("Unexpected Error: \(error)")
+            output = error.localizedDescription
         }
     }
 }
