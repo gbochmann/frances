@@ -7,9 +7,21 @@
 
 import SwiftUI
 
+func read(_ input: String) throws -> ASTNode {
+    return try readString(input)
+}
+
+func eval(_ input: ASTNode) -> ASTNode {
+    return input
+}
+
+func prn(_ input: ASTNode) -> String {
+    return printString(node: input)
+}
+
 struct ContentView: View {
     @State var input = "Enter text"
-    @State var output = "Output"
+    @State var output = ""
     
     var body: some View {
         VStack {
@@ -27,7 +39,7 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                 }
                 
-                Button("Run", action: runExpression)
+                Button("Run", action: rep)
                     .buttonStyle(.borderedProminent)
                     .tint(.primary)
                 
@@ -36,16 +48,12 @@ struct ContentView: View {
         }.padding(10)
     }
     
-    func runExpression() -> Void {
-        print("running expression")
-        
+    func rep() -> Void {
         do {
-            output = try read(tokenize(input)).inspect()
-        } catch ReadError.invalidExpression(let message) {
-            print("Error occurred: \(message)")
+            output = try prn(eval(read(input)))
+        } catch ReaderError.InvalidSyntax(let message) {
             output = message
         } catch {
-            print("Unexpected Error: \(error)")
             output = error.localizedDescription
         }
     }

@@ -1,65 +1,97 @@
 //
 //  reader.swift
-//  macro-ios
+//  frances
 //
-//  Created by Gerome Bochmann on 3/6/23.
+//  Created by Gerome Bochmann on 3/11/23.
 //
 
 import Foundation
 
-func tokenize(_ s: String) -> [String] {
-    return s.replacingOccurrences(of: "(", with: "( ")
-        .replacingOccurrences(of: ")", with: " )")
-        .split(separator: " ")
-        .map{ String($0) }
+enum ReaderError: Error {
+    case InvalidSyntax(String)
 }
 
-enum ReadError: Error {
-    case invalidExpression(String)
-}
-
-
-func read(_ tokens: [String]) throws -> Expression {
-    guard tokens.first == "(" else {
-        throw ReadError.invalidExpression("Expected expression to start with paren.")
-    }
+class Reader {
+    let tokens: [String]
+    var position = 0
     
-    let remainingTokens = tokens.dropFirst()
-    if (remainingTokens.first == nil) {
-        return Expression(op: Expression.Operator.empty, operands: [])
-    }
-    guard let operatr = Expression.Operator(rawValue: remainingTokens.first!) else {
-        throw ReadError.invalidExpression("First element must be an operator.")
-    }
-    
-    var operands = remainingTokens.dropFirst()
-    var operand = operands.removeFirst()
-    var resultOperands: [Expression.Operand] = []
-    
-    while operands.count > 0 {
-        if let number = Int(operand) {
-            resultOperands.append(Expression.Operand.Value(Expression.Value.Number(number)))
-            
-            operand = operands.removeFirst()
-            continue
-        } else if operand == "(" {
-            let closingIndex = operands.firstIndex(of: ")")
-            guard let endIndex = closingIndex else {
-                throw ReadError.invalidExpression("Could not find closing parens.")
-            }
-
-            let group = Array(operands[...endIndex])
-            resultOperands.append(Expression.Operand.Expression(try read(group)))
-            
-            operands.removeFirst(endIndex + 1)
-            operand = operands.first!
-            continue
+    var isExausted: Bool {
+        get {
+            return !(position < tokens.count - 1)
         }
     }
     
-    guard operand == ")" else {
-        throw ReadError.invalidExpression("Expression was not closed with \")\"")
+    init(tokens: [String], position: Int = 0) {
+        self.tokens = tokens.filter { t in t.count > 0 }
+        self.position = position
     }
     
-    return Expression(op: operatr, operands: Array(resultOperands))
+    func next() -> String {
+        position = position + 1
+        return tokens[position]
+    }
+    
+    func peek() -> String {
+        return tokens[position]
+    }
+}
+
+func tokenize(_ input: String) throws -> [String] {
+    let pattern = "[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"?|;.*|[^\\s\\[\\]{}('\"`,;)]*)"
+    var result: [String] = []
+
+    let regex = try NSRegularExpression(pattern: pattern, options: [])
+    let matches = regex.matches(in: input, options: [], range: NSRange(location: 0, length: input.utf16.count))
+
+    for match in matches {
+        if let range = Range(match.range, in: input) {
+            let matchString = input[range]
+            result.append(String(matchString))
+        }
+    }
+    
+    return result.map { s in s.trimmingCharacters(in: .whitespacesAndNewlines ) }
+}
+
+func readAtom(_ r: Reader) throws -> ASTNode {
+    let token = r.peek()
+    if (token.matches(of: /[0-9\.]+/)).count > 0 {
+        return ASTNumber(token: token)
+    }
+
+    if (token.matches(of: /[a-zA-Z0-9+-\/_><=*]+/)).count > 0 {
+        return ASTSymbol(token: token)
+    }
+    
+    throw ReaderError.InvalidSyntax("Unexpected token: \(token)")
+}
+
+func readList(_ r: Reader) throws -> ASTNode {
+    var token = r.next()
+    var list: [ASTNode] = []
+    while !r.isExausted && token != ")" {
+        list.append( try readForm(r))
+        token = r.next()
+    }
+    
+    if r.isExausted && token != ")" {
+        throw ReaderError.InvalidSyntax("Expected ')'")
+    }
+    
+    return ASTList(elements: list)
+}
+
+func readForm(_ r: Reader) throws -> ASTNode {
+    let token = r.peek()
+    
+    if token == "(" {
+        return try readList(r)
+    } else {
+        return try readAtom(r)
+    }
+}
+
+func readString(_ input: String) throws -> ASTNode {
+    let reader = Reader(tokens: try tokenize(input))
+    return try readForm(reader)
 }
