@@ -7,36 +7,32 @@
 
 import Foundation
 
-protocol ASTNode {}
+protocol ASTNode {
+    var value: Any { get set }
+}
 
 class ASTNumber: ASTNode {
+    var value: Any
     let valueAsString: String
     
     init(token: String) {
         self.valueAsString = token
+        self.value = Int(token)!
     }
 }
 
 class ASTSymbol: ASTNode {
-    let name: String
+    var value: Any
     
     init(token name: String) {
-        self.name = name
+        self.value = name
     }
 }
 
 class ASTList: ASTNode {
-    let elements: [ASTNode]
+    var value: Any
     
     init(elements: [ASTNode]) {
-        self.elements = elements
-    }
-}
-
-class UnknownAtom: ASTNode {
-    let token: String
-    
-    init(token: String) {
-        self.token = token
+        self.value = elements
     }
 }

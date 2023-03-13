@@ -12,7 +12,7 @@ func printString(node: ASTNode) -> String {
     case is ASTSymbol:
         return (node as! ASTSymbol).name
     case is ASTNumber:
-        return String((node as! ASTNumber).valueAsString)
+        return String((node as! ASTNumber).value)
     case is ASTList:
         let list = node as! ASTList
         let result = list.elements.map(printString)

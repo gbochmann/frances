@@ -11,7 +11,7 @@ func read(_ input: String) throws -> ASTNode {
     return try readString(input)
 }
 
-func eval(_ input: ASTNode) -> ASTNode {
+func eval(_ input: ASTNode, env: [String:Any]) -> ASTNode {
     return input
 }
 
@@ -50,7 +50,7 @@ struct ContentView: View {
     
     func rep() -> Void {
         do {
-            output = try prn(eval(read(input)))
+            output = try prn(eval(read(input), env: replEnv))
         } catch ReaderError.InvalidSyntax(let message) {
             output = message
         } catch {
