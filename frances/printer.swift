@@ -7,15 +7,14 @@
 
 import Foundation
 
-func printString(node: ASTNode) -> String {
+func printString(node: Node) -> String {
     switch node {
-    case is ASTSymbol:
-        return (node as! ASTSymbol).name
-    case is ASTNumber:
-        return String((node as! ASTNumber).value)
-    case is ASTList:
-        let list = node as! ASTList
-        let result = list.elements.map(printString)
+    case .Symbol(let name):
+        return name
+    case .Number(let num):
+        return String(num)
+    case .List(let list):
+        let result = list.map(printString)
         
         return "(\(result.joined(separator: " ")))"
     default:

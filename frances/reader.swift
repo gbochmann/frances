@@ -53,22 +53,22 @@ func tokenize(_ input: String) throws -> [String] {
     return result.map { s in s.trimmingCharacters(in: .whitespacesAndNewlines ) }
 }
 
-func readAtom(_ r: Reader) throws -> ASTNode {
+func readAtom(_ r: Reader) throws -> Node {
     let token = r.peek()
-    if (token.matches(of: /[0-9\.]+/)).count > 0 {
-        return ASTNumber(token: token)
+    if let asInt = Int(token) {
+        return Node.Number(asInt)
     }
 
     if (token.matches(of: /[a-zA-Z0-9+-\/_><=*]+/)).count > 0 {
-        return ASTSymbol(token: token)
+        return Node.Symbol(token)
     }
     
     throw ReaderError.InvalidSyntax("Unexpected token: \(token)")
 }
 
-func readList(_ r: Reader) throws -> ASTNode {
+func readList(_ r: Reader) throws -> Node {
     var token = r.next()
-    var list: [ASTNode] = []
+    var list: [Node] = []
     while !r.isExausted && token != ")" {
         list.append( try readForm(r))
         token = r.next()
@@ -78,10 +78,10 @@ func readList(_ r: Reader) throws -> ASTNode {
         throw ReaderError.InvalidSyntax("Expected ')'")
     }
     
-    return ASTList(elements: list)
+    return Node.List(list)
 }
 
-func readForm(_ r: Reader) throws -> ASTNode {
+func readForm(_ r: Reader) throws -> Node {
     let token = r.peek()
     
     if token == "(" {
@@ -91,7 +91,7 @@ func readForm(_ r: Reader) throws -> ASTNode {
     }
 }
 
-func readString(_ input: String) throws -> ASTNode {
+func readString(_ input: String) throws -> Node {
     let reader = Reader(tokens: try tokenize(input))
     return try readForm(reader)
 }

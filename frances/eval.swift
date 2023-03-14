@@ -11,21 +11,43 @@ enum EvaluationError: Error {
     case NotFound(String)
 }
 
-func evalAST(node: ASTNode, env: [String:Any]) throws -> Any {
-    switch node {
-    case is ASTSymbol:
-        let symbol = node as! ASTSymbol
-        guard let symbolValue = env[symbol.value as! String] else {
-            throw EvaluationError.NotFound("Could not find \(symbol.value as! String) in environment.")
+func eval(_ input: Node, env: [String:Any]) throws -> Node {
+    
+    switch input {
+    case .List(let elements):
+        
+        if elements.count == 0 {
+            return input
+        } else {
+            var sExpression = try evalAST(node: input, env: replEnv)
+            
+            if case .List(let array) = sExpression {
+                guard case let .Function(function) = array.first else { throw EvaluationError.NotFound("Invalid function call \(String(describing: elements.first))")}
+                let args = Array(array.dropFirst())
+                
+                return .Atom(apply(fn: function, args: args))
+            }
         }
-        return symbolValue
-        
-    case is ASTList:
-        let list = node as! ASTList
-        return try (list.value as! [ASTNode]).map({ el in try evalAST(node: el, env: replEnv)})
-        
     default:
-        return node.value
+        return try evalAST(node: input, env: replEnv)
     }
     
+    return input
+}
+
+func evalAST(node: Node, env: [String:ArithmeticFn]) throws -> Node {
+    switch node {
+    case .Symbol(let name):
+        guard let symbolValue = env[name] else {
+            throw EvaluationError.NotFound("Could not find \(name) in environment.")
+        }
+        
+        return .Function(symbolValue)
+        
+    case .List(let elements):
+        return try .List(elements.map({ el in try eval(el, env: replEnv)}))
+        
+    default:
+        return node
+    }
 }

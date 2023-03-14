@@ -80,15 +80,15 @@
 		12B6199A29B7273000D4D16B /* frances */ = {
 			isa = PBXGroup;
 			children = (
+				12A8AD8629BFBF6D00D00B8D /* ASTTypes.swift */,
 				12B6199D29B7273000D4D16B /* ContentView.swift */,
+				12A8AD8829BFCD0200D00B8D /* env.swift */,
+				12A8AD8A29BFCF2700D00B8D /* eval.swift */,
 				12B6199B29B7273000D4D16B /* francesApp.swift */,
 				12A8AD8429BFB74100D00B8D /* printer.swift */,
 				12A8AD8229BD17A000D00B8D /* reader.swift */,
 				12B6199F29B7273100D4D16B /* Assets.xcassets */,
 				12B619A129B7273100D4D16B /* Preview Content */,
-				12A8AD8629BFBF6D00D00B8D /* ASTTypes.swift */,
-				12A8AD8829BFCD0200D00B8D /* env.swift */,
-				12A8AD8A29BFCF2700D00B8D /* eval.swift */,
 			);
 			path = frances;
 			sourceTree = "<group>";

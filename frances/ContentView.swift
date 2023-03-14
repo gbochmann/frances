@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-func read(_ input: String) throws -> ASTNode {
+func apply<T, V>(fn: ([T]) -> V, args: [T]) -> V {
+    return fn(args)
+}
+
+func read(_ input: String) throws -> Node {
     return try readString(input)
 }
 
-func eval(_ input: ASTNode, env: [String:Any]) -> ASTNode {
-    return input
-}
-
-func prn(_ input: ASTNode) -> String {
+func prn(_ input: Node) -> String {
     return printString(node: input)
 }
 
@@ -52,6 +52,8 @@ struct ContentView: View {
         do {
             output = try prn(eval(read(input), env: replEnv))
         } catch ReaderError.InvalidSyntax(let message) {
+            output = message
+        } catch EvaluationError.NotFound(let message) {
             output = message
         } catch {
             output = error.localizedDescription
