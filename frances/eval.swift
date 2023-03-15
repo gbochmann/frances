@@ -19,13 +19,14 @@ func eval(_ input: Node, env: [String:Any]) throws -> Node {
         if elements.count == 0 {
             return input
         } else {
-            var sExpression = try evalAST(node: input, env: replEnv)
+            let sExpression = try evalAST(node: input, env: replEnv)
             
             if case .List(let array) = sExpression {
                 guard case let .Function(function) = array.first else { throw EvaluationError.NotFound("Invalid function call \(String(describing: elements.first))")}
                 let args = Array(array.dropFirst())
                 
-                return .Atom(apply(fn: function, args: args))
+                let resultingNode: Node = apply(fn: function, args: args)
+                return resultingNode
             }
         }
     default:

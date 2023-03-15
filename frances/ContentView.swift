@@ -20,7 +20,7 @@ func prn(_ input: Node) -> String {
 }
 
 struct ContentView: View {
-    @State var input = "Enter text"
+    @State var input = ""
     @State var output = ""
     
     var body: some View {

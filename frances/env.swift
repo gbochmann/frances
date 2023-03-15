@@ -9,29 +9,42 @@ import Foundation
 
 typealias ArithmeticFn = ([Node]) -> Node
 
-func calc(fn: (Int, Int) -> Int) -> ArithmeticFn {
-    return { (args: [Node]) in
+func calc( fn: @escaping (Int, Int) -> Int) -> ArithmeticFn {
+    func calcWrapper(args: [Node]) -> Node {
         guard case let .Number(first) = args.first else { return .Number(0) }
         let rest = args.dropFirst()
         let result = rest
             .map({ x in if case let .Number(num) = x {
                 return num
             } else { return 0 }})
-            .reduce(first, { x, y in x + y })
+            .reduce(first, fn)
         
         return .Number(result)
     }
+    
+    return calcWrapper
 }
 
-let add = calc(fn: { x, y in x + y})
-let subtract = calc(fn: { a, b in a - b })
-let multiply = calc(fn: { a, b in a * b })
-let divide = calc(fn: { a, b in Int(a/b) })
+func add(a: Int, b: Int) -> Int {
+    return a + b
+}
+
+func subtract(a: Int, b: Int) -> Int {
+    return a - b
+}
+
+func multiply(a: Int, b: Int) -> Int {
+    return a * b
+}
+
+func divide(a: Int, b: Int) -> Int {
+    return Int(a/b)
+}
 
 
 let replEnv: [String: ArithmeticFn] = [
-    "+": add,
-    "-": subtract,
-    "*": multiply,
-    "/": divide
+    "+": calc(fn: add),
+    "-": calc(fn: subtract),
+    "*": calc(fn: multiply),
+    "/": calc(fn: divide),
 ]
