@@ -17,9 +17,9 @@ class Env {
     let outer: Env?
     var table: [String:Node]
     
-    init(outer: Env?) {
+    init(parent outer: Env?, table: [String:Node]?) {
         self.outer = outer
-        self.table = [:]
+        self.table = table ?? [:]
     }
     
     func set(_ key: String, value: Node) {
@@ -31,7 +31,8 @@ class Env {
             throw EnvironmentError.NotFound("Could not locate \(key).")
         }
         
-        return try env.get(key)
+        // This is okay here because `find` already checked if it exists.
+        return env.table[key]!
     }
     
     func find(_ key: String) -> Env? {
@@ -75,10 +76,9 @@ func divide(a: Int, b: Int) -> Int {
     return Int(a/b)
 }
 
-
-let replEnv: [String: ArithmeticFn] = [
-    "+": calc(fn: add),
-    "-": calc(fn: subtract),
-    "*": calc(fn: multiply),
-    "/": calc(fn: divide),
-]
+let rootEnv: Env = Env(parent: nil, table: [
+    "+": .Function(calc(fn: add)),
+    "-": .Function(calc(fn: subtract)),
+    "*": .Function(calc(fn: multiply)),
+    "/": .Function(calc(fn: divide)),
+])

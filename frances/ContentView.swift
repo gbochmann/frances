@@ -50,11 +50,13 @@ struct ContentView: View {
     
     func rep() -> Void {
         do {
-            output = try prn(eval(read(input), env: replEnv))
+            output = try prn(eval(read(input), env: rootEnv))
         } catch ReaderError.InvalidSyntax(let message) {
-            output = message
+            output = "Reader Error: \(message)"
         } catch EvaluationError.NotFound(let message) {
-            output = message
+            output = "Evaluation Error: \(message)"
+        } catch EnvironmentError.NotFound(let message) {
+            output = "Environment Error: \(message)"
         } catch {
             output = error.localizedDescription
         }
