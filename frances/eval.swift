@@ -14,7 +14,7 @@ enum EvaluationError: Error {
 
 func eval(_ node: Node, env: Env) throws -> Node {
     guard case let .List(unevaluated) = node else {
-        return try evalAST(node: node, env: rootEnv)
+        return try evalAST(node: node, env: env)
     }
 
     if unevaluated.isEmpty {
@@ -32,11 +32,26 @@ func eval(_ node: Node, env: Env) throws -> Node {
         env.set(name, value: result)
         return result
         
-    case .Symbol("let*"):
+    case .Symbol("let"):
+        let body = unevaluated[2]
+        
         guard unevaluated.count == 3 else { throw EvaluationError.InvalidArguments("Invalid number of args for let*")}
+        guard case var .List(bindings) = unevaluated[1] else { throw EvaluationError.InvalidArguments("Invalid bindings for let*")}
+        guard bindings.count % 2 == 0 else { throw EvaluationError.InvalidArguments("Bindings must have even number of elements.")}
         
+        let localEnv = Env(parent: env, table: nil)
+        repeat {
+            let binding: [Node] = Array(bindings.prefix(2))
+            bindings.removeFirst(2)
+            let value = binding[1]
+            guard case let .Symbol(name) = binding[0] else { throw EvaluationError.InvalidArguments("Expected symbold but found something else.")}
+            
+            try localEnv.set(name, value: evalAST(node: value, env: localEnv))
+        } while !bindings.isEmpty
         
+        return try evalAST(node: body, env: localEnv)
         
+    
     default:
         guard case let .List(nodes) = try evalAST(node: node, env: rootEnv) else { fatalError() }
         guard case let .Function(function) = nodes.first else { throw EvaluationError.NotFound("Invalid function call \(String(describing: unevaluated.first))")}
@@ -54,7 +69,7 @@ func evalAST(node: Node, env: Env) throws -> Node {
         return try env.get(name)
         
     case .List(let elements):
-        return try .List(elements.map({ el in try eval(el, env: rootEnv)}))
+        return try .List(elements.map({ el in try eval(el, env: env)}))
         
     default:
         return node

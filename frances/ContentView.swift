@@ -37,6 +37,7 @@ struct ContentView: View {
                     TextField("Type command", text:$input)
                         .monospaced(true)
                         .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
                 }
                 
                 Button("Run", action: rep)

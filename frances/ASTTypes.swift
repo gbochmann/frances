@@ -50,13 +50,7 @@ class ASTList: ASTNode {
     }
 }
 
-enum Node: Equatable {
-    static func == (lhs: Node, rhs: Node) -> Bool {
-        if case let .Symbol(string) = lhs {
-            string
-        }
-    }
-    
+enum Node {  
     case Number(Int)
     case Symbol(String)
     indirect case List([Node])
