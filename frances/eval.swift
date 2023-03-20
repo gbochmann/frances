@@ -49,11 +49,35 @@ func eval(_ node: Node, env: Env) throws -> Node {
             try localEnv.set(name, value: evalAST(node: value, env: localEnv))
         } while !bindings.isEmpty
         
-        return try evalAST(node: body, env: localEnv)
+        return try eval(body, env: localEnv)
+        
+    case .Symbol("if"):
+        guard unevaluated.count == 4 else { throw EvaluationError.InvalidArguments("if expects 3 arguments found: \(unevaluated.count - 1)")}
+        guard case let .Boolean(conditional) = try eval(unevaluated[1], env: env) else { throw EvaluationError.InvalidArguments("Invalid condition argument for if.") }
+        let trueClause = unevaluated[2]
+        let falseClause = unevaluated[3]
+        
+        if conditional {
+            return try eval(trueClause, env: env)
+        } else {
+            return try eval(falseClause, env: env)
+        }
+        
+    case .Symbol("do"):
+        var exprs = unevaluated.dropFirst()
+        guard let lastExpr = exprs.popLast() else {
+            return Node.Nil
+        }
+        
+        for expr in exprs {
+            try eval(expr, env: env)
+        }
+        
+        return try eval(lastExpr, env: env)
         
     
     default:
-        guard case let .List(nodes) = try evalAST(node: node, env: rootEnv) else { fatalError() }
+        guard case let .List(nodes) = try evalAST(node: node, env: env) else { fatalError() }
         guard case let .Function(function) = nodes.first else { throw EvaluationError.NotFound("Invalid function call \(String(describing: unevaluated.first))")}
             let args = Array(nodes.dropFirst())
             

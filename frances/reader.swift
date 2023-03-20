@@ -58,6 +58,14 @@ func readAtom(_ r: Reader) throws -> Node {
     if let asInt = Int(token) {
         return Node.Number(asInt)
     }
+    
+    if let asBoolean = Bool(token) {
+        return Node.Boolean(asBoolean)
+    }
+    
+    if token == "nil" {
+        return Node.Nil
+    }
 
     if (token.matches(of: /[a-zA-Z0-9+-\/_><=*]+/)).count > 0 {
         return Node.Symbol(token)

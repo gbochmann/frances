@@ -17,6 +17,12 @@ func printString(node: Node) -> String {
         let result = list.map(printString)
         
         return "(\(result.joined(separator: " ")))"
+    case .Nil:
+        return "nil"
+    case .Boolean(let bool):
+        return String(bool)
+    case .Function:
+        return "#<function>"
     default:
         return "unknown symbol"
     }
