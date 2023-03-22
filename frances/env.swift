@@ -7,8 +7,6 @@
 
 import Foundation
 
-typealias ArithmeticFn = ([Node]) -> Node
-
 enum EnvironmentError: Error {
     case NotFound(String)
 }
@@ -20,6 +18,18 @@ class Env {
     init(parent outer: Env?, table: [String:Node]?) {
         self.outer = outer
         self.table = table ?? [:]
+    }
+    
+    init(parent: Env, params: [String], args: [Node]) {
+        self.outer = parent
+        self.table = [:]
+        
+        for p in 0..<params.count {
+            let param = params[p]
+            let argument = args[p]
+            
+            table[param] = argument
+        }
     }
     
     func set(_ key: String, value: Node) {
@@ -44,15 +54,15 @@ class Env {
     }
 }
 
-func calc( fn: @escaping (Int, Int) -> Int) -> ArithmeticFn {
-    func calcWrapper(args: [Node]) -> Node {
+func calc( fn: @escaping (Int, Int) -> Int) throws -> FFunction {
+    func calcWrapper(args: [Node]) throws -> Node {
         guard case let .Number(first) = args.first else { return .Number(0) }
         let rest = args.dropFirst()
-        let result = rest
-            .map({ x in if case let .Number(num) = x {
-                return num
-            } else { return 0 }})
-            .reduce(first, fn)
+        let result = try rest.map({ x in
+                                    guard case let .Number(num) = x else { throw EvaluationError.InvalidArguments("")}
+                                    return num
+                                })
+                                .reduce(first, fn)
         
         return .Number(result)
     }
@@ -76,9 +86,13 @@ func divide(a: Int, b: Int) -> Int {
     return Int(a/b)
 }
 
-let rootEnv: Env = Env(parent: nil, table: [
-    "+": .Function(calc(fn: add)),
-    "-": .Function(calc(fn: subtract)),
-    "*": .Function(calc(fn: multiply)),
-    "/": .Function(calc(fn: divide)),
-])
+do {
+    let rootEnv: Env = Env(parent: nil, table: [
+        "+": .Function(try calc(fn: add)),
+        "-": .Function(try calc(fn: subtract)),
+        "*": .Function(try calc(fn: multiply)),
+        "/": .Function(try calc(fn: divide)),
+    ])
+} catch {
+    fatalError()
+}

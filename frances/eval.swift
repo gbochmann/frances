@@ -75,6 +75,22 @@ func eval(_ node: Node, env: Env) throws -> Node {
         
         return try eval(lastExpr, env: env)
         
+    case .Symbol("fn"):
+        guard unevaluated.count == 3 else { throw EvaluationError.InvalidArguments("fn") }
+        guard case let .List(elements) = unevaluated[1] else { throw EvaluationError.InvalidArguments("fn") }
+        let params = try elements.map { p in
+            guard case let .Symbol(name) = p else { throw EvaluationError.InvalidArguments("fn") }
+            return name
+        }
+        let body = unevaluated[1]
+        
+        let f = { (args: [Node]) in
+            let functionEnv = Env(parent: env, params: params, args: args)
+            return try eval(unevaluated[2], env: functionEnv )
+        }
+        
+        return .Function(f)
+        
     
     default:
         guard case let .List(nodes) = try evalAST(node: node, env: env) else { fatalError() }

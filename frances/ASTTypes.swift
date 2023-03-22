@@ -11,7 +11,7 @@ enum Node {
     case Number(Int)
     case Symbol(String)
     indirect case List([Node])
-    case Function(ArithmeticFn)
+    case Function(FFunction)
     case Nil
     case Boolean(Bool)
     
