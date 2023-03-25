@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-func apply<T, V>(fn: @escaping ([T]) -> V, args: [T]) -> V {
-    return fn(args)
+func apply<T, V>(fn: @escaping ([T]) throws -> V, args: [T]) rethrows -> V {
+    return try fn(args)
 }
 
 func read(_ input: String) throws -> Node {
@@ -16,7 +16,7 @@ func read(_ input: String) throws -> Node {
 }
 
 func prn(_ input: Node) -> String {
-    return printString(node: input)
+    return prStr(node: input)
 }
 
 struct ContentView: View {

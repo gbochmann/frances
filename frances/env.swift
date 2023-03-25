@@ -15,6 +15,11 @@ class Env {
     let outer: Env?
     var table: [String:Node]
     
+    init() {
+        self.outer = nil
+        self.table = [:]
+    }
+    
     init(parent outer: Env?, table: [String:Node]?) {
         self.outer = outer
         self.table = table ?? [:]
@@ -54,7 +59,7 @@ class Env {
     }
 }
 
-func calc( fn: @escaping (Int, Int) -> Int) throws -> FFunction {
+func calc( fn: @escaping (Int, Int) -> Int) -> FFunction {
     func calcWrapper(args: [Node]) throws -> Node {
         guard case let .Number(first) = args.first else { return .Number(0) }
         let rest = args.dropFirst()
@@ -86,13 +91,5 @@ func divide(a: Int, b: Int) -> Int {
     return Int(a/b)
 }
 
-do {
-    let rootEnv: Env = Env(parent: nil, table: [
-        "+": .Function(try calc(fn: add)),
-        "-": .Function(try calc(fn: subtract)),
-        "*": .Function(try calc(fn: multiply)),
-        "/": .Function(try calc(fn: divide)),
-    ])
-} catch {
-    fatalError()
-}
+
+let rootEnv: Env = Env(parent: nil, table: ns)

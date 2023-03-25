@@ -7,7 +7,7 @@
 
 import Foundation
 
-func printString(node: Node) -> String {
+func prStr(node: Node) -> String {
     switch node {
     case .Symbol(let name):
         return name
@@ -16,7 +16,7 @@ func printString(node: Node) -> String {
         return String(num)
         
     case .List(let list):
-        let result = list.map(printString)
+        let result = list.map(prStr)
         return "(\(result.joined(separator: " ")))"
         
     case .Nil:

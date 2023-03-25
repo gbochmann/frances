@@ -97,7 +97,7 @@ func eval(_ node: Node, env: Env) throws -> Node {
         guard case let .Function(function) = nodes.first else { throw EvaluationError.NotFound("Invalid function call \(String(describing: unevaluated.first))")}
             let args = Array(nodes.dropFirst())
             
-            let resultingNode: Node = apply(fn: function, args: args)
+            let resultingNode: Node = try apply(fn: function, args: args)
             return resultingNode
     }
 
