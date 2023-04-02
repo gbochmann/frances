@@ -9,13 +9,14 @@ import Foundation
 
 enum ReaderError: Error {
     case InvalidSyntax(String)
+    case UnexpectedEnd
 }
 
 class Reader {
     let tokens: [String]
     var position = 0
     
-    var isExausted: Bool {
+    var isExhausted: Bool {
         get {
             return !(position < tokens.count - 1)
         }
@@ -26,9 +27,16 @@ class Reader {
         self.position = position
     }
     
-    func next() -> String {
-        position = position + 1
+    func next() throws -> String {
+        
+        let newPosition = position + 1
+        guard tokens.count - 1 >= newPosition else {
+            throw ReaderError.UnexpectedEnd
+        }
+        
+        position = newPosition
         return tokens[position]
+
     }
     
     func peek() -> String {
@@ -75,14 +83,20 @@ func readAtom(_ r: Reader) throws -> Node {
 }
 
 func readList(_ r: Reader) throws -> Node {
-    var token = r.next()
+    var token = try r.next()
     var list: [Node] = []
-    while !r.isExausted && token != ")" {
+    
+    while !r.isExhausted && token != ")" {
+        
+        if token == "(" {
+            list.append(try readList(r))
+        }
+        
         list.append( try readForm(r))
-        token = r.next()
+        token = try r.next()
     }
     
-    if r.isExausted && token != ")" {
+    if r.isExhausted && token != ")" {
         throw ReaderError.InvalidSyntax("Expected ')'")
     }
     
