@@ -23,7 +23,6 @@ func prn(_ input: Node) -> String {
 
 struct ContentView: View {
     @State var input = ""
-    @ObservedObject var output = REPLOutput()
     
     var body: some View {
         NavigationView {

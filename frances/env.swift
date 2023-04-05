@@ -15,14 +15,10 @@ class Env {
     let outer: Env?
     var table: [String:Node]
     
-    init() {
+
+    init(table: [String:Node]) {
+        self.table = table
         self.outer = nil
-        self.table = [:]
-    }
-    
-    init(parent outer: Env?, table: [String:Node]?) {
-        self.outer = outer
-        self.table = table ?? [:]
     }
     
     init(parent: Env, params: [String], args: [Node]) {
@@ -35,6 +31,11 @@ class Env {
             
             table[param] = argument
         }
+    }
+    
+    init(parent: Env) {
+        self.outer = parent
+        self.table = [:]
     }
     
     func set(_ key: String, value: Node) {
@@ -90,6 +91,3 @@ func multiply(a: Int, b: Int) -> Int {
 func divide(a: Int, b: Int) -> Int {
     return Int(a/b)
 }
-
-
-let rootEnv: Env = Env(parent: nil, table: ns)

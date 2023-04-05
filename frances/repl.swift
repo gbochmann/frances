@@ -8,9 +8,11 @@
 import Foundation
 import SwiftUI
 
+var replOut = REPLOutput()
+
 struct REPLView: View {
-    @State private var input: String = ""
-    @State private var output: [String] = []
+    @State var input: String = ""
+    @StateObject var output: REPLOutput = replOut
     
     var body: some View {
         VStack {
@@ -21,8 +23,10 @@ struct REPLView: View {
     
     private func runCode() {
         let evaluationResult: String
+        output.append("> " + input)
+        
         do {
-            evaluationResult = try prn(eval(read(input), env: rootEnv))
+            evaluationResult = try prn(eval(read(input), env: Env(table: ns)))
         } catch ReaderError.InvalidSyntax(let message) {
             evaluationResult = "Reader Error: \(message)"
         } catch EvaluationError.NotFound(let message) {
@@ -33,7 +37,6 @@ struct REPLView: View {
             evaluationResult = error.localizedDescription
         }
         
-        output.append(input)
         output.append(evaluationResult)
         input = ""
     }
@@ -44,10 +47,9 @@ struct REPLView: View {
                 VStack {
                     Spacer()
                     LazyVStack(alignment: .leading, spacing: 10) {
-                        ForEach(output.indices, id: \.self) { index in
-                            Text(output[index])
+                        ForEach(output.history.indices, id: \.self) { index in
+                            Text(output.history[index])
                                 .padding()
-                                .background(Color(.systemGray6))
                                 .cornerRadius(10)
                         }
                     }

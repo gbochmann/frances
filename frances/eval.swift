@@ -39,7 +39,7 @@ func eval(_ node: Node, env: Env) throws -> Node {
         guard case var .List(bindings) = unevaluated[1] else { throw EvaluationError.InvalidArguments("Invalid bindings for let*")}
         guard bindings.count % 2 == 0 else { throw EvaluationError.InvalidArguments("Bindings must have even number of elements.")}
         
-        let localEnv = Env(parent: env, table: nil)
+        let localEnv = Env(parent: env)
         repeat {
             let binding: [Node] = Array(bindings.prefix(2))
             bindings.removeFirst(2)

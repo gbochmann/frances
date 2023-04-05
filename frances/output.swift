@@ -9,11 +9,11 @@ import Foundation
 import Combine
 
 class REPLOutput: ObservableObject {
-    @Published var output: [String] = []
+    @Published var history: [String] = []
     
-    func appendOutput(_ value: String) {
+    func append(_ value: String) {
         DispatchQueue.main.async {
-            self.output.append(value)
+            self.history.append(value)
         }
     }
 }
