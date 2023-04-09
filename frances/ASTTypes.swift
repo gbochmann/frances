@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Node {  
+enum Node {   
     case Number(Int)
     case Symbol(String)
     indirect case List([Node])

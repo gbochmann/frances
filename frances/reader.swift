@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RegexBuilder
 
 enum ReaderError: Error {
     case InvalidSyntax(String)
@@ -90,9 +91,10 @@ func readList(_ r: Reader) throws -> Node {
         
         if token == "(" {
             list.append(try readList(r))
+        } else {
+            list.append( try readForm(r))
         }
         
-        list.append( try readForm(r))
         token = try r.next()
     }
     
